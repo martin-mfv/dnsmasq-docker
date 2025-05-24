@@ -1,6 +1,6 @@
 services:
   dnsmasq:
-    image: yourname/dnsmasq:latest
+    image: luongvietdung/dnsmasq:latest
     ports:
       - "53:53/udp"
     volumes:

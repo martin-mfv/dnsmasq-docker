@@ -51,7 +51,7 @@ jobs:
 
       - name: Build and Push Docker Images
         run: |
-          IMAGE=yourname/dnsmasq
+          IMAGE=luongvietdung/dnsmasq
           VERSION=${{ steps.bump.outputs.new_tag }}
           docker build -t $IMAGE:$VERSION -t $IMAGE:latest .
           docker push $IMAGE:$VERSION

@@ -20,7 +20,7 @@ Ideal for development networks, LAN environments, or custom DNS routing.
 ### 1. Build Image
 
 ```bash
-docker build -t yourname/dnsmasq:latest .
+docker build -t luongvietdung/dnsmasq:latest .
 ```
 
 ### 2. Example `dnsmasq.conf`
@@ -37,7 +37,7 @@ log-facility=-
 docker run --rm -it \
   -p 53:53/udp \
   -v $(pwd)/dnsmasq.conf:/etc/dnsmasq.d/dnsmasq.conf:ro \
-  yourname/dnsmasq:latest
+  luongvietdung/dnsmasq:latest
 ```
 
 ### 4. Use with Docker Compose
@@ -47,7 +47,7 @@ You can run `dnsmasq` using Docker Compose v2 syntax for easier setup:
 ```yaml
 services:
   dnsmasq:
-    image: yourname/dnsmasq:latest
+    image: luongvietdung/dnsmasq:latest
     ports:
       - "53:53/udp"
     volumes:

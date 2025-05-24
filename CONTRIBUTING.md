@@ -18,7 +18,7 @@ Please follow the guidelines below to ensure a smooth and productive contributio
 To build the image locally for development or testing:
 
 ```bash
-docker build -t yourname/dnsmasq:latest .
+docker build -t luongvietdung/dnsmasq:latest .
 ```
 
 Replace `yourname` with your Docker Hub username or any custom tag.
@@ -43,7 +43,7 @@ This sets up a simple DNS rule and enables logging to stdout.
 docker run --rm -it \
   -p 53:53/udp \
   -v $(pwd)/dnsmasq.conf:/etc/dnsmasq.d/dnsmasq.conf:ro \
-  yourname/dnsmasq:latest
+  luongvietdung/dnsmasq:latest
 ```
 
 > Notes:
