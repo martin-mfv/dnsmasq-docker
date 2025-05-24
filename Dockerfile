@@ -4,8 +4,7 @@ FROM alpine:latest
 LABEL maintainer="dunglv1992@gmail.com"
 LABEL description="Reusable dnsmasq image for internal DNS servers"
 
-RUN apk add --no-cache dnsmasq && \
-    adduser -D -H -s /bin/false dnsmasq
+RUN apk add --no-cache dnsmasq
 
 # Create a directory containing the runtime configuration
 RUN mkdir -p /etc/dnsmasq.d
