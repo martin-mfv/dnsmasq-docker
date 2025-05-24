@@ -60,9 +60,7 @@ Please refer to [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed test steps.
 ├── dnsmasq.conf         # Optional sample config
 ├── README.md
 ├── CONTRIBUTING.md
-└── .github
-    └── ISSUE_TEMPLATE
-        └── feature_request.md
+
 ```
 
 ---
