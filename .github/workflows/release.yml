@@ -1,25 +1,20 @@
 name: Release Image and Create GitHub Release
 
 on:
-  workflow_dispatch:  # manual trigger
+  workflow_dispatch:  # Manual trigger from GitHub UI
 
 permissions:
   contents: write
   packages: write
 
-env:
-  IMAGE_NAME: luongvietdung/dnsmasq
-
 jobs:
   release:
     runs-on: ubuntu-latest
-    environment: production
+    environment: production  # Requires approval in GitHub UI
 
     steps:
-      - name: Checkout code
+      - name: Checkout source code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -31,7 +26,7 @@ jobs:
           TAG=$(git describe --tags --match "v*" --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
-      - name: Bump patch version
+      - name: Bump version (patch)
         id: bump
         run: |
           VERSION=${{ steps.get_tag.outputs.tag }}
@@ -41,7 +36,7 @@ jobs:
           NEW_TAG="v$MAJOR.$MINOR.$PATCH"
           echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
 
-      - name: Create and push new git tag
+      - name: Create Git Tag
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
@@ -54,33 +49,28 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker image (multi-arch)
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: |
-            ${{ env.IMAGE_NAME }}:${{ steps.bump.outputs.new_tag }}
-            ${{ env.IMAGE_NAME }}:latest
-
-      - name: Generate changelog
-        id: changelog
+      - name: Build and Push Docker Images
         run: |
-          PREV=${{ steps.get_tag.outputs.tag }}
-          CURR=${{ steps.bump.outputs.new_tag }}
-          echo "Generating changelog from $PREV to $CURR"
-          LOG=$(git log --pretty=format:"- %s" $PREV..$CURR)
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          echo "$LOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          IMAGE=luongvietdung/dnsmasq
+          VERSION=${{ steps.bump.outputs.new_tag }}
+          docker build -t $IMAGE:$VERSION -t $IMAGE:latest .
+          docker push $IMAGE:$VERSION
+          docker push $IMAGE:latest
 
-      - name: Create GitHub Release
+      - name: Install git-chglog
+        run: |
+          curl -sSL https://github.com/git-chglog/git-chglog/releases/download/v0.15.1/git-chglog_0.15.1_linux_amd64.tar.gz | tar -xz
+          sudo mv git-chglog /usr/local/bin/
+
+      - name: Generate CHANGELOG.md
+        run: |
+          git-chglog --next-tag ${{ steps.bump.outputs.new_tag }} -o CHANGELOG.md
+
+      - name: Create GitHub Release with changelog
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.bump.outputs.new_tag }}
           name: Release ${{ steps.bump.outputs.new_tag }}
-          body: ${{ steps.changelog.outputs.changelog }}
+          body_path: CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

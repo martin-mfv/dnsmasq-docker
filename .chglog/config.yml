@@ -1,0 +1,19 @@
+style: github
+template: CHANGELOG.tpl.md
+tag_filter_pattern: '^v'
+output: CHANGELOG.md
+sections:
+  - type: "feat"
+    section: "✨ Features"
+  - type: "fix"
+    section: "🐛 Bug Fixes"
+  - type: "chore"
+    section: "🔧 Maintenance"
+  - type: "docs"
+    section: "📝 Documentation"
+  - type: "refactor"
+    section: "🛠️ Refactoring"
+  - type: "perf"
+    section: "🚀 Performance"
+  - type: "test"
+    section: "✅ Testing"
