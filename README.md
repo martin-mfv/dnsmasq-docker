@@ -39,13 +39,12 @@ docker run --rm -it \
   -v $(pwd)/dnsmasq.conf:/etc/dnsmasq.d/dnsmasq.conf:ro \
   yourname/dnsmasq:latest
 ```
+
 ### 4. Use with Docker Compose
 
-You can run `dnsmasq` using a `docker-compose.yml` file for easier configuration and persistent usage:
+You can run `dnsmasq` using Docker Compose v2 syntax for easier setup:
 
 ```yaml
-version: "3.8"
-
 services:
   dnsmasq:
     image: yourname/dnsmasq:latest
@@ -56,6 +55,8 @@ services:
     restart: unless-stopped
 ```
 
+Save this as `compose.yml` in your project root.
+
 Start it with:
 
 ```bash
@@ -64,25 +65,20 @@ docker compose up -d
 
 ---
 
-### 5. Test From LAN
-
-Configure a device in your LAN to use the host machine's IP as its DNS resolver.
-
----
-
-### 📝 About `dnsmasq.conf`
-
-A sample config file is included (`dnsmasq.conf`) in the repository.
-You should **copy and customize it** to fit your internal network setup.
-This includes:
-
-- mapping internal domains to IPs
-- enabling logging
-- defining upstream DNS servers (optional)
-
 ## 🧪 Local Test Instructions
 
 Please refer to [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed test steps.
+
+---
+
+## 📝 About `dnsmasq.conf`
+
+A sample config file is included (`dnsmasq.conf`) in the repository.
+You should **copy and customize it** for your internal network needs, such as:
+
+- Mapping internal domain names to IP addresses
+- Enabling query logging
+- Setting upstream DNS servers if needed
 
 ---
 
@@ -94,7 +90,11 @@ Please refer to [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed test steps.
 ├── dnsmasq.conf         # Optional sample config
 ├── README.md
 ├── CONTRIBUTING.md
-
+└── .github
+    └── ISSUE_TEMPLATE
+        ├── bug_report.md
+        └── feature_request.md
+├── compose.yml          # Docker Compose file
 ```
 
 ---
