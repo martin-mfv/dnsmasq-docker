@@ -36,12 +36,30 @@ jobs:
           NEW_TAG="v$MAJOR.$MINOR.$PATCH"
           echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
 
+      - name: Install git-chglog
+        run: |
+          curl -sSL https://github.com/git-chglog/git-chglog/releases/download/v0.15.1/git-chglog_0.15.1_linux_amd64.tar.gz | tar -xz
+          sudo mv git-chglog /usr/local/bin/
+
+      - name: Generate CHANGELOG.md
+        run: |
+          git-chglog --next-tag ${{ steps.bump.outputs.new_tag }} -o CHANGELOG.md
+
       - name: Create Git Tag
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
           git tag ${{ steps.bump.outputs.new_tag }}
           git push origin ${{ steps.bump.outputs.new_tag }}
+
+      - name: Create GitHub Release with changelog
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.bump.outputs.new_tag }}
+          name: Release ${{ steps.bump.outputs.new_tag }}
+          body_path: CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -56,21 +74,3 @@ jobs:
           docker build -t $IMAGE:$VERSION -t $IMAGE:latest .
           docker push $IMAGE:$VERSION
           docker push $IMAGE:latest
-
-      - name: Install git-chglog
-        run: |
-          curl -sSL https://github.com/git-chglog/git-chglog/releases/download/v0.15.1/git-chglog_0.15.1_linux_amd64.tar.gz | tar -xz
-          sudo mv git-chglog /usr/local/bin/
-
-      - name: Generate CHANGELOG.md
-        run: |
-          git-chglog --next-tag ${{ steps.bump.outputs.new_tag }} -o CHANGELOG.md
-
-      - name: Create GitHub Release with changelog
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.bump.outputs.new_tag }}
-          name: Release ${{ steps.bump.outputs.new_tag }}
-          body_path: CHANGELOG.md
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
