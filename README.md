@@ -1,5 +1,9 @@
 # 🧭 dnsmasq-docker
 
+![Build](https://github.com/martin-mfv/dnsmasq-docker/actions/workflows/release.yml/badge.svg)
+![Docker Pulls](https://img.shields.io/docker/pulls/luongvietdung/dnsmasq)
+![License](https://img.shields.io/github/license/martin-mfv/dnsmasq-docker)
+
 A lightweight Docker image for running a custom DNS server using [dnsmasq](https://thekelleys.org.uk/dnsmasq/doc.html).
 Ideal for development networks, LAN environments, or custom DNS routing.
 
@@ -42,7 +46,7 @@ docker run --rm -it \
 
 ### 4. Use with Docker Compose
 
-You can run `dnsmasq` using Docker Compose v2 syntax for easier setup:
+You can run `dnsmasq` using Docker Compose syntax for easier setup:
 
 ```yaml
 services:

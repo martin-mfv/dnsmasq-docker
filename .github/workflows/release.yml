@@ -1,20 +1,25 @@
 name: Release Image and Create GitHub Release
 
 on:
-  workflow_dispatch:  # Manual trigger from GitHub UI
+  workflow_dispatch:  # manual trigger
 
 permissions:
   contents: write
   packages: write
 
+env:
+  IMAGE_NAME: luongvietdung/dnsmasq
+
 jobs:
   release:
     runs-on: ubuntu-latest
-    environment: production  # Requires approval in GitHub UI
+    environment: production
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -26,7 +31,7 @@ jobs:
           TAG=$(git describe --tags --match "v*" --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
-      - name: Bump version (patch)
+      - name: Bump patch version
         id: bump
         run: |
           VERSION=${{ steps.get_tag.outputs.tag }}
@@ -36,7 +41,7 @@ jobs:
           NEW_TAG="v$MAJOR.$MINOR.$PATCH"
           echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
 
-      - name: Create Git Tag
+      - name: Create and push new git tag
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
@@ -49,20 +54,24 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push Docker Images
-        run: |
-          IMAGE=luongvietdung/dnsmasq
-          VERSION=${{ steps.bump.outputs.new_tag }}
-          docker build -t $IMAGE:$VERSION -t $IMAGE:latest .
-          docker push $IMAGE:$VERSION
-          docker push $IMAGE:latest
+      - name: Build and push Docker image (multi-arch)
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ steps.bump.outputs.new_tag }}
+            ${{ env.IMAGE_NAME }}:latest
 
-      - name: Generate Changelog
+      - name: Generate changelog
         id: changelog
         run: |
           PREV=${{ steps.get_tag.outputs.tag }}
           CURR=${{ steps.bump.outputs.new_tag }}
-          LOG=$(git log --pretty=format:"- %s" $PREV..HEAD)
+          echo "Generating changelog from $PREV to $CURR"
+          LOG=$(git log --pretty=format:"- %s" $PREV..$CURR)
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
           echo "$LOG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
