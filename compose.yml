@@ -1,0 +1,8 @@
+services:
+  dnsmasq:
+    image: yourname/dnsmasq:latest
+    ports:
+      - "53:53/udp"
+    volumes:
+      - ./dnsmasq.conf:/etc/dnsmasq.d/dnsmasq.conf:ro
+    restart: unless-stopped
